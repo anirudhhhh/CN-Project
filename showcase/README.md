@@ -30,7 +30,7 @@ A: browser → Python sender → localhost SOCKS5 :1080
 
 ## 2. Install on ALL three computers
 
-Copy the complete `real-public-network` source folder to each computer. Exclude `.showcase-venv`, `__pycache__` and generated databases; create a fresh environment on each machine. Keep `client/`, `common/`, `server/` and `showcase/` together.
+Copy the complete `CN-Project` source folder to each computer. Exclude `.showcase-venv`, `__pycache__` and generated databases; create a fresh environment on each machine. Keep `client/`, `common/`, `server/` and `showcase/` together.
 
 Use Python 3.12+. From the project root on macOS/Linux:
 
@@ -47,7 +47,7 @@ py -3 -m venv .showcase-venv
 .\.showcase-venv\Scripts\python.exe -m pip install -r showcase\requirements.txt
 ```
 
-The commands below use `python` in the activated environment. On Windows substitute `.\.showcase-venv\Scripts\python.exe` for `python`; activation is not required. On macOS/Linux you can likewise use `.showcase-venv/bin/python` explicitly. Dependencies are Flask and Scapy; CustomTkinter and PyJWT are not needed for these pages. Windows proxy mode avoids the Linux-only TUN import; Windows execution has not been verified in this session.
+The commands below use `python` in the activated environment. On Windows substitute `.\.showcase-venv\Scripts\python.exe` for `python`; activation is not required. On macOS/Linux you can likewise use `.showcase-venv/bin/python` explicitly. Dependencies are Flask and Scapy; CustomTkinter and PyJWT are not needed for these pages. Windows proxy mode avoids the Linux-only TUN import; Verify Windows execution on the presentation machines.
 
 ## 3. Computer B: start the VPN server FIRST
 
@@ -149,15 +149,15 @@ The visible scrambled bytes include encoded HTTP headers and JSON, not just the 
 
 | Symptom | Check |
 | --- | --- |
-| VPN shows Disconnected in an older version | Update with `git pull` and restart B; older code displayed the sender status instead of the VPN listener state |
+| VPN shows Disconnected | Check that B is running the VPN role, open B's `/vpn-server` page, and verify its listener on port 9090 |
 | Receiver terminal prints HTTP 200 repeatedly | Page/inbox polling succeeded; verify a new packet ID and message in the receiver window to prove delivery |
 | Connection refused | Correct IP/port, correct role running, B/C launched with `--bind 0.0.0.0` |
 | Timeout reaching VPN | B's port 9090 firewall rule, shared reachable LAN, no Wi-Fi client isolation |
 | VPN receives traffic but C gets nothing | C's service on 8000, B-to-C connectivity, C's trusted VPN IP is B's LAN IP |
 | Sender says receiver did not acknowledge | Receiver rejected source IP, wrong service/path, or incomplete response; inspect C's terminal |
-| Address already in use | Stop an old showcase or original VPN/GUI process; don't run `all` and a separate role on the same default ports |
+| Address already in use | Stop an existing showcase or VPN/GUI process; don't run `all` and a separate role on the same default ports |
 | Cannot import Flask or Scapy | Install into the same Python environment used to start the role |
-| Windows mentions `fcntl` | Copy the updated client/core.py; TUN imports are now deferred until TUN mode is selected |
+| Windows mentions `fcntl` | Use proxy mode; the Linux-only TUN imports are needed only for TUN mode |
 | Sender tries wrong saved address | Sender fields persist in browser local storage; update them |
 | Other windows show nothing | Each window reads its own role's process. Open the sender on A, VPN window on B, receiver on C |
 
@@ -187,4 +187,4 @@ Options: `--role all|sender|vpn|receiver`, `--bind`, `--web-port` (5055), `--vpn
 
 Run `python showcase/verify_three_roles.py` with the normal showcase idle. It starts and tears down three independent processes on one test host using alternate ports, then verifies forwarding, actual server payload capture, source-address matching and receiver rejection. The local sender port 1080 must be free. This passed on macOS; it is not a physical three-computer LAN test.
 
-Older `verify_messages.py` and `verify_windows.py` target a running default all-in-one instance. The standalone `receiver.py` remains a minimal HTTP receiver, but the receiver role above is recommended because it includes the configurable trusted VPN setting and dedicated page.
+`verify_messages.py` and `verify_windows.py` target a running default all-in-one instance. The standalone `receiver.py` remains a minimal HTTP receiver, but the receiver role above is recommended because it includes the configurable trusted VPN setting and dedicated page.

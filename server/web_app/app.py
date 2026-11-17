@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, make_respo
 import jwt
 import datetime
 
-SECRET_KEY = "spiced_chai_super_secret"
+SECRET_KEY = "ma3104_vpn_demo_secret"
 
 def create_app(vpn_core, db_manager):
     app = Flask(__name__)
@@ -62,7 +62,7 @@ def create_app(vpn_core, db_manager):
     @app.route('/admin/kick/<username>')
     def kick_user(username):
         if get_current_user() != 'admin': return redirect(url_for('login'))
-        vpn_core.kick_user(username) # Instantly drops the TCP socket!
+        vpn_core.kick_user(username) # Disconnect the active tunnel
         return redirect(url_for('admin_dashboard'))
 
     @app.route('/admin/firewall/add', methods=['POST'])

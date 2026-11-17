@@ -5,8 +5,8 @@ MSG_TYPE_DATA = 0
 MSG_TYPE_HEARTBEAT = 1
 MSG_TYPE_AUTH = 2
 MSG_TYPE_PROXY_CONNECT = 3
-MSG_TYPE_AUTH_REQ = 4   # NEW: Client sends credentials
-MSG_TYPE_AUTH_RESP = 5  # NEW: Server replies with SUCCESS or ERROR
+MSG_TYPE_AUTH_REQ = 4   # Client sends credentials
+MSG_TYPE_AUTH_RESP = 5  # Server replies with SUCCESS or ERROR
 
 FLAG_NONE = 0x00
 FLAG_FRAGMENTED = 0x01

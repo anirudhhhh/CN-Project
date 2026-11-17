@@ -1,6 +1,8 @@
-# Spiced Chai VPN
+# MA3104 VPN
 
-An educational Python networking project with a custom framed TCP tunnel, SOCKS5 proxy, firewall, rate limiting, usage accounting, and an interactive message showcase. The showcase sends actual messages through separate sender, VPN server and receiver processes.
+A Python networking project for the MA3104 Computer Networks course with a custom framed TCP tunnel, SOCKS5 proxy, firewall, rate limiting, usage accounting, and an interactive message showcase. The showcase sends actual messages through separate sender, VPN server and receiver processes.
+
+Presentation content, speaker notes, demonstration steps, and viva questions are available in the [presentation document](docs/MA3104_VPN_Presentation_Content.docx).
 
 ## Start here: three-computer live showcase
 
@@ -64,11 +66,11 @@ Open the sender, receiver and VPN URLs above on the same laptop. Use VPN `127.0.
 - **Rate limiting:** per-user, per-direction token buckets.
 - **Observation:** optional client/server callbacks provide actual encoded payload and forwarding metadata for the showcase. They are not packet captures.
 
-Application protocols run over TCP and IP. A physical LAN demonstration also lets you inspect link-layer frames in Wireshark. Blockchain and AI are not implemented.
+Application protocols run over TCP and IP. A physical LAN demonstration also lets you inspect link-layer frames in Wireshark.
 
-## Original Linux TUN mode and admin portal
+## Linux TUN mode and admin portal
 
-The original entry point remains separate from the showcase. It instantiates raw-socket NAT and therefore requires appropriate privileges and a Linux setup for the full TUN path.
+The Linux TUN server uses a separate entry point from the proxy showcase. It instantiates raw-socket NAT and therefore requires appropriate privileges and a Linux setup for the full TUN path.
 
 ```bash
 python -m pip install -r requirements.txt
@@ -76,9 +78,9 @@ sudo sysctl -w net.ipv4.ip_forward=1
 sudo /absolute/path/to/your/venv/bin/python run_server.py
 ```
 
-The original admin portal is http://127.0.0.1:5000; the tunnel is port 9090. Launch the Tk client with `python client/gui.py`; Linux TUN mode requires elevated privileges, `/dev/net/tun`, the `ip` utility and careful routing configuration. Its GUI currently hardcodes the server as localhost. Use the showcase sender for configurable remote VPN addresses. Do not run the original server alongside the showcase VPN on the same port.
+The admin portal is http://127.0.0.1:5000; the tunnel is port 9090. Launch the Tk client with `python client/gui.py`; Linux TUN mode requires elevated privileges, `/dev/net/tun`, the `ip` utility and careful routing configuration. Its GUI currently hardcodes the server as localhost. Use the showcase sender for configurable remote VPN addresses. Do not run the TUN server alongside the showcase VPN on the same port.
 
-Default demo credentials: user `test` / `test`; original admin portal `admin` / `admin`. JWT applies to the original web portal; tunnel authentication uses its own credential handshake. The load-balancer module is separate and is not started automatically.
+Default demo credentials: user `test` / `test`; admin portal `admin` / `admin`. JWT applies to the web portal; tunnel authentication uses its own credential handshake. The load-balancer module is separate and is not started automatically.
 
 ## Project structure
 
@@ -86,7 +88,7 @@ Default demo credentials: user `test` / `test`; original admin portal `admin` / 
 client/                 VPN client, SOCKS5 handler, Tk GUI, Linux TUN support
 common/                 Protocol framing and educational byte-shift encoding
 server/                 VPN forwarding, raw NAT, firewall, database and accounting
-server/web_app/         Original Flask admin/user portal
+server/web_app/         Flask admin/user portal
 showcase/app.py         Role-based presentation launcher
 showcase/index.html     Sender window
 showcase/receiver.html  Receiver window
@@ -94,11 +96,11 @@ showcase/server.html    VPN server window
 showcase/receiver.py    HTTP receiver implementation
 showcase/README.md      Complete three-computer instructions
 load_balancer/          Standalone TCP load balancer
-run_server.py           Original privileged server entry point
+run_server.py           Privileged Linux TUN server entry point
 ```
 
 ## Verification and limits
 
-`python showcase/verify_three_roles.py` checks three independent processes over real sockets on one host: selected tunnel endpoint, forwarding, server observation, receiver acknowledgement and source-IP rejection. Tested on macOS. A physical three-PC LAN and Windows runtime have not been tested in this session. See the showcase guide for rehearsal checks.
+`python showcase/verify_three_roles.py` checks three independent processes over real sockets on one host: selected tunnel endpoint, forwarding, server observation, receiver acknowledgement and source-IP rejection. Tested on macOS. Validate the physical three-computer LAN and Windows runtime on the presentation machines. See the showcase guide for rehearsal checks.
 
 This is educational software. The +3 byte shift is reversible obfuscation, **not secure encryption**. The VPN server recovers plaintext and forwards HTTP to the receiver. Default credentials, a source-IP allowlist and a development web console do not provide production security. Use a trusted demo network and non-sensitive messages. The TUN path needs its own validation before presentation.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Simulates Phase 5 Firewall Block scenario
+# Check destination blocking with and without TUN forwarding
 
 TARGET_IP="8.8.8.8"
 
@@ -10,7 +10,7 @@ echo "--------------------------------------------------------"
 echo "Rule applied!"
 echo "1. First, try to ping $TARGET_IP in a normal terminal. It should FAIL."
 echo "   Command: ping $TARGET_IP -c 3"
-echo "2. Next, launch Spiced Chai VPN and connect in TUN mode."
+echo "2. Next, launch MA3104 VPN and connect in TUN mode."
 echo "3. Try the ping command again. It should SUCCEED, proving the traffic goes through the server."
 echo "--------------------------------------------------------"
 echo "When you are done testing, remove the block rule with this command:"
