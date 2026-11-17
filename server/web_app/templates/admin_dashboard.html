@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark px-4">
+        <a class="navbar-brand" href="#">Admin Control Panel</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </nav>
+    <div class="container-fluid mt-4 px-4">
+        <div class="row">
+            <!-- Users Table -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-primary text-white">Users & Active Sessions</div>
+                    <div class="card-body overflow-auto" style="max-height: 400px;">
+                        <table class="table table-sm">
+                            <thead><tr><th>User</th><th>Status</th><th>Usage</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for u in users %}
+                                <tr>
+                                    <td>{{ u[1] }} {% if u[1] in active_users %}<span class="badge bg-success">Online</span>{% endif %}</td>
+                                    <td>{{ u[4] }}</td>
+                                    <td>{{ (u[3]/1048576)|round(1) }}MB / {{ (u[2]/1048576)|round(1) }}MB</td>
+                                    <td>
+                                        {% if u[1] in active_users %}
+                                        <a href="/admin/kick/{{ u[1] }}" class="btn btn-danger btn-sm">Kick</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Firewall Rules -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-danger text-white">Firewall Rules</div>
+                    <div class="card-body overflow-auto" style="max-height: 400px;">
+                        <form method="POST" action="/admin/firewall/add" class="row g-2 mb-3">
+                            <div class="col-2"><input type="text" name="domain" class="form-control form-control-sm" placeholder="Domain"></div>
+                            <div class="col-2"><input type="text" name="ip" class="form-control form-control-sm" placeholder="IP"></div>
+                            <div class="col-2"><input type="number" name="port" class="form-control form-control-sm" placeholder="Port"></div>
+                            <div class="col-2"><input type="text" name="username" class="form-control form-control-sm" placeholder="User (Optional)"></div>
+                            <div class="col-2">
+                                <select name="action" class="form-select form-select-sm"><option value="BLOCK">BLOCK</option><option value="ALLOW">ALLOW</option></select>
+                            </div>
+                            <div class="col-2"><button type="submit" class="btn btn-dark btn-sm w-100">Add</button></div>
+                        </form>
+                        <table class="table table-sm">
+                            <thead><tr><th>Target</th><th>Action</th><th>User</th><th></th></tr></thead>
+                            <tbody>
+                                {% for r in fw_rules %}
+                                <tr>
+                                    <td>{{ r[3] or r[1] or r[2] }}</td>
+                                    <td><span class="badge bg-danger">{{ r[4] }}</span></td>
+                                    <td>{{ r[5] or 'ALL' }}</td>
+                                    <td><a href="/admin/firewall/delete/{{ r[0] }}" class="btn btn-outline-danger btn-sm">Del</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traffic Logs -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-info text-white">Live Traffic Logs</div>
+                    <div class="card-body overflow-auto" style="max-height: 400px;">
+                        <table class="table table-sm table-striped">
+                            <thead><tr><th>Time</th><th>User</th><th>Destination</th><th>Port</th></tr></thead>
+                            <tbody>
+                                {% for t in traffic %}
+                                <tr><td>{{ t[5].split()[1] }}</td><td>{{ t[0] }}</td><td>{{ t[4] or t[2] }}</td><td>{{ t[3] }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Firewall Logs -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-warning text-dark">Firewall Block Logs</div>
+                    <div class="card-body overflow-auto" style="max-height: 400px;">
+                        <table class="table table-sm table-striped">
+                            <thead><tr><th>Time</th><th>User</th><th>Blocked Target</th></tr></thead>
+                            <tbody>
+                                {% for f in fw_logs %}
+                                <tr><td>{{ f[4].split()[1] }}</td><td>{{ f[0] }}</td><td>{{ f[3] or f[1] or f[2] }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

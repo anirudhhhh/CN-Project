@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark px-4">
+        <a class="navbar-brand" href="#">Spiced Chai VPN</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </nav>
+    <div class="container mt-5" style="max-width: 600px;">
+        <div class="card shadow">
+            <div class="card-body text-center">
+                <h2>Welcome, {{ user[1] }}</h2>
+                <hr>
+                <h4>Connection Status: 
+                    {% if is_active %} <span class="badge bg-success">Connected</span>
+                    {% else %} <span class="badge bg-secondary">Disconnected</span> {% endif %}
+                </h4>
+                <h4 class="mt-3">Account Status: 
+                    {% if user[4] == 'ACTIVE' %} <span class="badge bg-primary">Active</span>
+                    {% else %} <span class="badge bg-danger">{{ user[4] }}</span> {% endif %}
+                </h4>
+                
+                <div class="mt-4 text-start">
+                    <p><strong>Data Usage:</strong> {{ (user[3] / 1048576)|round(2) }} MB / {{ (user[2] / 1048576)|round(2) }} MB</p>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar {% if percent > 90 %}bg-danger{% else %}bg-warning{% endif %}" 
+                             style="width: {{ percent }}%;">{{ percent }}%</div>
+                    </div>
+                </div>
+                
+                <div class="mt-5">
+                    <a href="/client/buy" class="btn btn-success btn-lg w-100">Simulate Quota Purchase (+1 GB)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
