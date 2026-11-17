@@ -134,6 +134,8 @@ The visible scrambled bytes include encoded HTTP headers and JSON, not just the 
 
 | Symptom | Check |
 | --- | --- |
+| VPN shows Disconnected in an older version | Update with `git pull` and restart B; older code displayed the sender status instead of the VPN listener state |
+| Receiver terminal prints HTTP 200 repeatedly | Page/inbox polling succeeded; verify a new packet ID and message in the receiver window to prove delivery |
 | Connection refused | Correct IP/port, correct role running, B/C launched with `--bind 0.0.0.0` |
 | Timeout reaching VPN | B's port 9090 firewall rule, shared reachable LAN, no Wi-Fi client isolation |
 | VPN receives traffic but C gets nothing | C's service on 8000, B-to-C connectivity, C's trusted VPN IP is B's LAN IP |

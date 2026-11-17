@@ -247,7 +247,13 @@ def server_window():
 
 @app.get('/api/server')
 def server_state():
-    return jsonify(listener=f'{bind_host}:{vpn_port}', events=list(vpn_events), status=status)
+    if core is None:
+        return jsonify(listener=None, events=[], status='VPN server is not running in this role', listening=False, active_clients=0)
+    with core.client_lock:
+        active = len(core.authenticated_clients)
+    return jsonify(listener=f'{bind_host}:{vpn_port}', events=list(vpn_events),
+                   status=f'Listening / {active} authenticated client(s)' if core.running else 'Stopped',
+                   listening=core.running, active_clients=active)
 
 
 @app.get('/api/state')
