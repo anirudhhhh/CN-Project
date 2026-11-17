@@ -288,7 +288,7 @@ def send_message():
 def action():
     global client, last_result, hits, last_message
     if core is None:
-        return jsonify(error='Legacy demo controls require all-in-one mode'), 400
+        return jsonify(error='These controls require all-in-one mode'), 400
     with operation_lock:
         name = (request.get_json() or {}).get('action')
         if name in ('connect', 'bad_auth'):
@@ -378,7 +378,7 @@ def startup_banner(selected_role, binding, web, tunnel, receiver, advertised=Non
     remote = binding not in ('127.0.0.1', 'localhost')
     local = '127.0.0.1' if binding == '0.0.0.0' else binding
     path = {'vpn': '/vpn-server', 'receiver': '/receiver'}.get(selected_role, '/')
-    lines = ['\n' + '=' * 64, f'SPICED CHAI / {selected_role.upper()}',
+    lines = ['\n' + '=' * 64, f'MA3104 VPN / {selected_role.upper()}',
              f'Open this window here: http://{local}:{web}{path}',
              f'Detected LAN IP: {lan or "unavailable; inspect network settings"}']
     if remote and lan:
@@ -408,7 +408,7 @@ def startup_banner(selected_role, binding, web, tunnel, receiver, advertised=Non
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Spiced Chai real three-computer message showcase')
+    parser = argparse.ArgumentParser(description='MA3104 VPN real three-computer message showcase')
     parser.add_argument('--role', choices=['all', 'sender', 'vpn', 'receiver'], default='all')
     parser.add_argument('--bind', default='127.0.0.1', help='Socket listener address; use 0.0.0.0 for LAN showcase')
     parser.add_argument('--web-port', type=int, default=5055)

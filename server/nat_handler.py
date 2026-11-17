@@ -5,7 +5,7 @@ import socket
 from scapy.all import IP, TCP, UDP, ICMP, sniff
 
 class NATHandler:
-    # UPDATED: Add traffic_monitor to init
+    # Optional connection logging
     def __init__(self, send_callback, traffic_monitor=None):
         self.send_callback = send_callback
         self.traffic_monitor = traffic_monitor
@@ -37,7 +37,7 @@ class NATHandler:
         threading.Thread(target=self._sniff_incoming, daemon=True).start()
         print(f"NAT Handler started. Masquerading as {self.server_ip}")
 
-    # UPDATED: Add username parameter
+    # Rewrite and forward a packet for an authenticated client
     def process_outgoing(self, raw_packet, client_addr, username=None):
         try:
             pkt = IP(raw_packet)
@@ -47,7 +47,7 @@ class NATHandler:
             client_internal_ip = pkt.src
             protocol = pkt.proto
             
-            # UPDATED: Extract dport for logging
+            # Extract transport ports for NAT mapping and logging
             if pkt.haslayer(TCP):
                 sport = pkt[TCP].sport
                 dport = pkt[TCP].dport
@@ -75,7 +75,7 @@ class NATHandler:
                     self.port_map_outgoing[mapping_key] = mapped_port
                     self.port_map_incoming[(mapped_port, protocol)] = (client_internal_ip, sport, client_addr)
                     
-                    # NEW: Log the connection since it's a new mapping!
+                    # Log newly created NAT mappings
                     if self.traffic_monitor and username:
                         self.traffic_monitor.log_connection(username, client_internal_ip, pkt.dst, dport)
             
@@ -94,7 +94,7 @@ class NATHandler:
         except Exception as e:
             print(f"Error processing outgoing NAT: {e}")
 
-    # ... (Keep _sniff_incoming and cleanup_client exactly the same as before)
+    # Receive translated replies and clean up disconnected clients
     def _sniff_incoming(self):
         filter_str = f"ip dst {self.server_ip} and (tcp or udp or icmp)"
         

@@ -20,7 +20,7 @@ class Firewall:
     def is_blocked(self, username, ip=None, port=None, domain=None, payload=None):
         rules = self.get_rules(username)
         
-        # ADVANCED: App-Layer Filtering (Extract domain from HTTP Host header)
+        # Extract the domain from an HTTP Host header when present
         if payload:
             match = re.search(b"Host: (.*?)\\r\\n", payload, re.IGNORECASE)
             if match:

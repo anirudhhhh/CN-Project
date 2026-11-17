@@ -21,7 +21,7 @@ class DBManager:
     def init_db(self):
         with self.get_conn() as conn:
             cursor = conn.cursor()
-            # UPDATED: Added 'status' column
+            # Store account status alongside quota and usage
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,7 +65,7 @@ class DBManager:
                     user_id INTEGER 
                 )
             ''')
-            # NEW: Firewall Logs Table
+            # Firewall block log table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS firewall_logs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,10 +87,10 @@ class DBManager:
         except sqlite3.IntegrityError:
             pass # User already exists
 
-    # UPDATED: Check status as well as quota
+    # Credential verification and quota checks
     def verify_user(self, username, password):
         with self.get_conn() as conn:
-            # Removed "AND status = 'ACTIVE'" so they can still log into the web portal
+            # Portal login remains available when tunnel access is restricted
             cursor = conn.execute("SELECT id FROM users WHERE username = ? AND password = ?",
                                   (username, password))
             return cursor.fetchone() is not None
@@ -116,7 +116,7 @@ class DBManager:
             cursor = conn.execute("INSERT INTO sessions (user_id) VALUES (?)", (user_id,))
             return cursor.lastrowid
 
-    # UPDATED: Explicitly set QUOTA_EXHAUSTED status
+    # Persist usage and mark exhausted accounts
     def sync_usage(self, username, session_id, upload_diff, download_diff):
         with self.get_conn() as conn:
             conn.execute('''
@@ -173,7 +173,7 @@ class DBManager:
                 ''', (target_ip, target_port, target_domain, action, user_id))
 
     def init_test_firewall_rules(self):
-        """Injects some default rules for testing Phase 2.4"""
+        """Configure default domain and Telnet filtering rules."""
         # Block example.com domain (Advanced DNS/App-Layer filtering)
         self.add_firewall_rule(target_domain="example.com", action="BLOCK", username="test")
         # Block outgoing Telnet (Basic Port filtering)
@@ -191,7 +191,7 @@ class DBManager:
                     VALUES (?, ?, ?, ?, ?)
                 ''', (user_id, src_ip, dst_ip, dst_port, domain))
 
-    # NEW: Log firewall blocks
+    # Record blocked destination attempts
     def log_firewall_block(self, username, ip, port, domain):
         with self.get_conn() as conn:
             cursor = conn.execute("SELECT id FROM users WHERE username = ?", (username,))

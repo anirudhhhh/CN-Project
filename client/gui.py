@@ -19,8 +19,8 @@ class VPNClientApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Spiced Chai VPN")
-        self.geometry("400x650") # Increased height to fit login fields
+        self.title("MA3104 VPN")
+        self.geometry("400x650") # Window dimensions
         self.resizable(False, False)
         
         self.is_connected = False
@@ -41,11 +41,11 @@ class VPNClientApp(ctk.CTk):
         
     def setup_ui(self):
         self.title_label = ctk.CTkLabel(
-            self, text="Spiced Chai VPN", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold")
+            self, text="MA3104 VPN", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold")
         )
         self.title_label.grid(row=1, column=0, pady=(0, 30))
         
-        # NEW: Username and Password Fields
+        # Username and password fields
         self.username_entry = ctk.CTkEntry(self, placeholder_text="Username", width=200)
         self.username_entry.grid(row=2, column=0, pady=(0, 10))
         

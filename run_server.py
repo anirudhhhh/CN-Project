@@ -8,7 +8,7 @@ if __name__ == "__main__":
     server = VPNServerCore()
     
     # 2. Initialize and Start Flask Web App in a separate thread
-    # We pass the server instance so the Web App can call server.kick_user()
+    # Share the server instance so the portal can disconnect users
     flask_app = create_app(server, server.db)
     threading.Thread(
         target=lambda: flask_app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False), 
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     ).start()
     
     print("==================================================")
-    print(" Starting Spiced Chai VPN Server")
+    print(" Starting MA3104 VPN Server")
     print(" Web Admin Panel running at: http://127.0.0.1:5000")
     print(" Press Ctrl+C to stop")
     print("==================================================")

@@ -8,7 +8,7 @@ from server.nat_handler import NATHandler
 from server.db_manager import DBManager
 from server.rate_limiter import RateLimiter
 from server.firewall import Firewall
-from server.traffic_monitor import TrafficMonitor # NEW: Import Traffic Monitor
+from server.traffic_monitor import TrafficMonitor # Connection traffic logging
 
 class VPNServerCore:
     def __init__(self, host='0.0.0.0', port=9090, *, enable_nat=True, db_path='vpn_database.db'):
@@ -34,9 +34,9 @@ class VPNServerCore:
         self.rate_limiter = RateLimiter(rate_bytes_per_sec=1024 * 1024)
         self.firewall = Firewall(self.db) 
         
-        self.traffic_monitor = TrafficMonitor(self.db) # NEW: Initialize Traffic Monitor
+        self.traffic_monitor = TrafficMonitor(self.db) # Connection traffic logging
         
-        # UPDATED: Pass traffic_monitor to NATHandler
+        # Share the traffic monitor with the NAT handler
         self.nat_handler = NATHandler(send_callback=self.send_to_client, traffic_monitor=self.traffic_monitor) if enable_nat else None
 
     def _observe(self, stage, **details):
@@ -155,7 +155,7 @@ class VPNServerCore:
                             print(f"[*] Firewall BLOCKED TUN packet from {username}")
                             continue 
                             
-                        # UPDATED: Pass username to NAT handler
+                        # Associate outgoing packets with the authenticated user
                         if self.nat_handler:
                             self.nat_handler.process_outgoing(decrypted_packet, addr, username)
                     else:
@@ -181,7 +181,7 @@ class VPNServerCore:
                         print(f"[*] Firewall BLOCKED Proxy connection to {host}:{port} from {username}")
                         continue 
                     
-                    # NEW: Log Proxy Connection
+                    # Record the proxy destination
                     self.traffic_monitor.log_connection(username, addr[0], host, port)
                     
                     target_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

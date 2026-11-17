@@ -3,7 +3,7 @@ import fcntl
 import struct
 import subprocess
 
-# Special magic numbers (flags) that tell the Linux Kernel we want to create a fake, virtual network card
+# Linux ioctl constants for a TUN interface without packet-information headers
 TUNSETIFF = 0x400454ca
 IFF_TUN = 0x0001
 IFF_NO_PI = 0x1000
