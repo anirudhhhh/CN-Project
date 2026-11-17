@@ -101,6 +101,21 @@ Expected result: A reports delivery, B shows scrambled incoming bytes with A as 
 
 The browser is the control window. Python on A opens the network sockets; opening A's page from another device would not move the sender process to that device.
 
+## Startup addresses and two roles on one computer
+
+Each role now prints the detected LAN IPv4, local/remote browser URL, and exact service addresses to copy into the fields. Use **VPN TUNNEL** (`IP:9090`) for the sender's VPN setting and **MESSAGE RECEIVER** (`IP:8000`) for its receiver setting. The receiver's trusted VPN setting takes only the VPN machine IP, without a port. Web ports 5055/5056 are only for browser pages.
+
+When VPN and receiver share one computer, start them in separate terminals with different web ports:
+
+```bash
+python showcase/app.py --role vpn --bind 0.0.0.0 --web-port 5055
+python showcase/app.py --role receiver --bind 0.0.0.0 --web-port 5056
+```
+
+Use that computer's LAN IP for both sender destinations, with ports 9090 and 8000 respectively. Its receiver must trust that LAN IP, not `127.0.0.1:5055`.
+
+If multiple adapters cause automatic IP detection to choose the wrong network, add `--advertise-ip YOUR_LAN_IP`. This only controls the printed address; `--bind` still controls which interfaces listen. Automatic default-route detection sends no application data to the route-selection address. Loopback-bound roles print localhost service endpoints and explain that remote access requires `--bind 0.0.0.0`.
+
 ## 6. Firewall and connectivity
 
 Permit only the required inbound services on your private demo network:

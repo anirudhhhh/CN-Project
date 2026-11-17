@@ -43,6 +43,8 @@ B's window shows source, destination and scrambled payload. C shows the accepted
 
 Allow inbound TCP **9090 on B** and **8000 on C**. All machines need LAN reachability. Port 5055 is each machine's web console; remote access to it is unnecessary when viewing locally. No sudo or IP forwarding is needed for the proxy showcase. `0.0.0.0` is a listen address, not an address to enter in the sender.
 
+Startup prints the detected LAN IP and exact **VPN TUNNEL** / **MESSAGE RECEIVER** addresses to enter. For VPN and receiver on one machine, use `--web-port 5055` for VPN and `--web-port 5056` for receiver. Their actual service ports remain 9090 and 8000. Override IP detection with `--advertise-ip YOUR_LAN_IP` if needed.
+
 ### One-computer rehearsal
 
 ```bash

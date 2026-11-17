@@ -353,6 +353,59 @@ def boot():
         event('system', f'Receiver listening on {bind_host}:{receiver_port}')
 
 
+def detect_lan_ip():
+    """Ask the OS which local IPv4 address its default route uses; send no data."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            probe.connect(('8.8.8.8', 80))
+            candidate = probe.getsockname()[0]
+            if not candidate.startswith('127.'):
+                return candidate
+    except OSError:
+        pass
+    try:
+        for item in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            candidate = item[4][0]
+            if not candidate.startswith('127.') and candidate != '0.0.0.0':
+                return candidate
+    except OSError:
+        pass
+    return None
+
+
+def startup_banner(selected_role, binding, web, tunnel, receiver, advertised=None):
+    lan = advertised or (detect_lan_ip() if binding in ('0.0.0.0', '127.0.0.1', 'localhost') else binding)
+    remote = binding not in ('127.0.0.1', 'localhost')
+    local = '127.0.0.1' if binding == '0.0.0.0' else binding
+    path = {'vpn': '/vpn-server', 'receiver': '/receiver'}.get(selected_role, '/')
+    lines = ['\n' + '=' * 64, f'SPICED CHAI / {selected_role.upper()}',
+             f'Open this window here: http://{local}:{web}{path}',
+             f'Detected LAN IP: {lan or "unavailable; inspect network settings"}']
+    if remote and lan:
+        lines.append(f'Web page from another PC: http://{lan}:{web}{path}')
+    if selected_role in ('vpn', 'all'):
+        endpoint = f'{lan if remote and lan else local}:{tunnel}'
+        lines += [f'VPN TUNNEL: {endpoint}',
+                  f'  Sender field "My VPN server IP : port": {endpoint}',
+                  f'  Receiver field "My trusted VPN server IP": {lan if remote and lan else local}']
+    if selected_role in ('receiver', 'all'):
+        endpoint = f'{lan if remote and lan else local}:{receiver}'
+        lines += [f'MESSAGE RECEIVER: {endpoint}',
+                  f'  Sender field "Receiver IP : port": {endpoint}',
+                  "  In the receiver window, apply the VPN machine's IP (no port)."]
+    if selected_role == 'sender':
+        lines += ["Enter the VPN machine's printed TUNNEL address and the",
+                  "receiver machine's printed MESSAGE RECEIVER address in this page."]
+    if not remote:
+        lines.append('Local-only listeners. For VPN/receiver LAN access use --bind 0.0.0.0.')
+    elif not lan:
+        lines.append('Set --advertise-ip YOUR_LAN_IP to print usable LAN endpoints.')
+    else:
+        lines.append('Multiple adapters? Verify this IP; override with --advertise-ip if needed.')
+    lines += ['Web page ports are NOT message/tunnel ports.', '=' * 64 + '\n']
+    return '\n'.join(lines)
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Spiced Chai real three-computer message showcase')
@@ -361,8 +414,9 @@ if __name__ == '__main__':
     parser.add_argument('--web-port', type=int, default=5055)
     parser.add_argument('--vpn-port', type=int, default=9090)
     parser.add_argument('--receiver-port', type=int, default=8000)
+    parser.add_argument('--advertise-ip', help='LAN IPv4 to print when automatic detection chooses the wrong adapter')
     args = parser.parse_args()
     role, bind_host, vpn_port, receiver_port = args.role, args.bind, args.vpn_port, args.receiver_port
     boot()
-    print(f'\nRole: {role}. Open http://127.0.0.1:{args.web_port} on THIS computer.\n')
+    print(startup_banner(role, bind_host, args.web_port, vpn_port, receiver_port, args.advertise_ip), flush=True)
     app.run(host=bind_host, port=args.web_port, threaded=True, use_reloader=False)
